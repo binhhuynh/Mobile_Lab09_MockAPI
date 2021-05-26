@@ -1,2 +1,0 @@
-include ':app'
-rootProject.name = "Mobile_Lab09_MockAPI"
