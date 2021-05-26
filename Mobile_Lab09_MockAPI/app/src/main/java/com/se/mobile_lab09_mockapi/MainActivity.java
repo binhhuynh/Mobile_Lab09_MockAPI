@@ -16,9 +16,11 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,6 +51,13 @@ public class MainActivity extends AppCompatActivity {
 
         gson = new Gson();
 
+        getEmployees();
+
+        adapter = new CustomAdapter(employees, this);
+
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
         btnAddEmp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -56,12 +65,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        getEmployees();
-
-        adapter = new CustomAdapter(employees, this);
-
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getEmployee();
+            }
+        });
     }
 
     public void getEmployees() {
@@ -83,5 +92,22 @@ public class MainActivity extends AppCompatActivity {
         }, error -> Toast.makeText(MainActivity.this, "Error with JSON Array Object", Toast.LENGTH_SHORT).show());
 
         queue.add(jsonArrayRequest);
+    }
+
+    public void getEmployee() {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = "https://60ad9c2b80a61f0017331458.mockapi.io/api/employees/" + etSearch.getText().toString();
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                employees.clear();
+                Employee employee = gson.fromJson(response.toString(), Employee.class);
+                employees.add(employee);
+                adapter.notifyDataSetChanged();
+            }
+        }, error -> Toast.makeText(this, "Error by get JsonObject...", Toast.LENGTH_SHORT).show());
+
+        queue.add(jsonObjectRequest);
     }
 }
