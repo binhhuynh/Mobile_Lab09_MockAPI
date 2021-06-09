@@ -51,9 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
         gson = new Gson();
 
-        getEmployees();
-
-        adapter = new CustomAdapter(employees, this);
+        adapter = new CustomAdapter(this);
 
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -68,40 +66,21 @@ public class MainActivity extends AppCompatActivity {
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // Chưa xử lí chức năng này
                 getEmployee();
+                recyclerView.setAdapter(adapter);
             }
         });
     }
 
-    public void getEmployees() {
-        employees = new ArrayList<>();
-        RequestQueue queue = Volley.newRequestQueue(this);
-        String url = "https://60ad9c2b80a61f0017331458.mockapi.io/api/employees";
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(url, new Response.Listener<JSONArray>() {
-            @Override
-            public void onResponse(JSONArray response) {
-                for (int i = 0; i < response.length(); i++) {
-                    try {
-                        JSONObject object = (JSONObject) response.get(i);
-                        employees.add(gson.fromJson(String.valueOf(object), Employee.class));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }, error -> Toast.makeText(MainActivity.this, "Error with JSON Array Object", Toast.LENGTH_SHORT).show());
-
-        queue.add(jsonArrayRequest);
-    }
-
     public void getEmployee() {
+        employees = new ArrayList<>();
         RequestQueue queue = Volley.newRequestQueue(this);
         String url = "https://60ad9c2b80a61f0017331458.mockapi.io/api/employees/" + etSearch.getText().toString();
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                employees.clear();
                 Employee employee = gson.fromJson(response.toString(), Employee.class);
                 employees.add(employee);
                 adapter.notifyDataSetChanged();
